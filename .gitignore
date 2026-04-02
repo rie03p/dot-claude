@@ -18,6 +18,7 @@ stats-cache.json
 
 # Runtime / ephemeral data
 backups/
+plugins/
 cache/
 /debug/
 downloads/
