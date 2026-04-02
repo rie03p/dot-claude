@@ -19,7 +19,7 @@ stats-cache.json
 # Runtime / ephemeral data
 backups/
 cache/
-debug/
+/debug/
 downloads/
 file-history/
 paste-cache/
