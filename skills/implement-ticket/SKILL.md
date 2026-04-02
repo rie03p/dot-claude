@@ -1,0 +1,148 @@
+---
+name: implement-ticket
+description: Linearのサブチケット（実装タスク）を受け取り、mainブランチからブランチを作成してコードを実装し、コミット・プッシュ・ドラフトPRまでを一貫して行う。「このチケットを実装して」「PROJ-XXXXを実装して」「/implement-ticket PROJ-XXXX」など、Linearチケットに基づくコーディング作業を求められた場面で使う。
+argument-hint: "<チケットID (例: PROJ-1234)>"
+---
+
+# 実装チケット対応スキル
+
+指定された Linear サブチケット（実装タスク）の内容に基づき、ブランチを作成してコードを実装し、ドラフト PR を作成するまでを一貫して行う。
+
+## 引数の解析
+
+`$ARGUMENTS` からチケットID（例: `PROJ-1234`）を読み取る。未指定ならユーザーに聞く。
+
+## 手順
+
+### 1. チケット情報の取得
+
+`linear api` で対象チケットと親チケットの情報を取得する。`searchIssues(term: ..., first: 1)` を使う。
+
+```bash
+linear api '
+query {
+  searchIssues(term: "<チケットID>", first: 1) {
+    nodes {
+      id
+      identifier
+      title
+      description
+      url
+      state { name type }
+      assignee { name }
+      team { key id }
+      parent {
+        identifier
+        title
+        description
+      }
+      labels { nodes { name } }
+    }
+  }
+}
+'
+```
+
+取得した情報を表示:
+- チケットタイトル・description
+- 親チケットのタイトル・description（要件・テスト観点の把握に使う）
+
+### 2. コードベース調査
+
+チケットのタイトル・description・親チケット情報からキーワードを抽出し、コードベースを調査する。
+
+- Grep / Glob でキーワード検索（関数名、コンポーネント名、API名など）
+- 関連ファイルを特定して読み込む
+- 既存の実装パターン、影響範囲、依存関係を把握する
+
+調査結果をユーザーに報告:
+- 関連ファイル一覧
+- 変更が必要な箇所の見当
+- 実装方針の案
+
+### 3. ブランチの作成
+
+プロジェクトルートで最新の main ブランチからブランチを切る。
+
+```bash
+# プロジェクトのgitルートへ移動
+cd $(git rev-parse --show-toplevel)
+
+# mainを最新に更新
+git checkout main
+git pull origin main
+
+# ブランチを作成（チケットIDと作業内容を組み合わせた名前）
+# 例: feature/proj-1234-add-user-profile
+git checkout -b feature/<ticket-id-lowercase>-<descriptive-words>
+```
+
+ブランチ名の規則:
+- チケットIDをそのまま使う（例: `proj-1234`）
+- その後ろに作業内容を表す英単語を `-` 区切りで付ける
+- 例: `feature/proj-1234-add-user-profile`
+
+### 4. 実装
+
+チケットの内容に基づき、コードを実装する。
+
+- 親チケットの要件・テスト観点を参照しながら実装
+- 既存のコードパターン・スタイルに従う（CLAUDE.md を参照）
+- テスト観点を意識した実装（エッジケースの考慮）
+- 実装の区切りごとに `/commit` スキルでコミット
+
+実装の進め方:
+1. まず実装方針をユーザーに確認してから着手する
+2. 論理的なまとまりごとにコミットする
+3. テストファイルがある場合は合わせて更新する
+
+### 5. コミットとプッシュ
+
+各コミットは `/commit` スキルを使って行う。
+
+```bash
+# 実装完了後にプッシュ
+git push -u origin <ブランチ名>
+```
+
+### 6. ドラフトPRの作成
+
+`gh` コマンドでドラフト PR を作成する。
+
+PRのタイトル: `[チケットID] チケットタイトル`（例: `[PROJ-1234] ユーザープロフィール表示の改善`）
+
+PRのdescriptionはプロジェクトの PR テンプレート（`.github/pull_request_template.md`）があればそれを読み込んで使う。なければ以下のフォーマットに従う:
+
+```markdown
+### 背景
+
+Linear: <Step 1で取得したチケットのurl>
+
+（背景・目的）
+
+### 変更内容
+
+（何をどう変更したかを具体的に記載）
+
+### 確認した内容
+
+（動作確認した内容を箇条書き）
+```
+
+```bash
+gh pr create \
+  --title "[<チケットID>] <チケットタイトル>" \
+  --body "$(cat <<'EOF'
+（上記テンプレートを埋めた内容）
+EOF
+)" \
+  --draft
+```
+
+### 7. 完了報告
+
+以下をユーザーに報告する:
+- 作成したブランチ名
+- コミット一覧
+- PR の URL
+- 次のアクション（テスト仕様書作成チケットへの着手など）
