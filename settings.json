@@ -104,7 +104,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "INPUT=$(cat); MSG=$(echo \"$INPUT\" | jq -r '.message // \"Claude Code からの通知\"'); osascript -e \"display notification \\\"$MSG\\\" with title \\\"Claude Code\\\"\" 2>/dev/null; exit 0"
+            "command": "INPUT=$(cat); MSG=$(echo \"$INPUT\" | jq -r '.message // \"Claude Code からの通知\"'); osascript -e \"display notification \\\"$MSG\\\" with title \\\"Claude Code\\\" sound name \\\"Glass\\\"\" 2>/dev/null; exit 0"
           }
         ]
       }
