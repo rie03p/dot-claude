@@ -110,6 +110,9 @@
       }
     ]
   },
-  "statusLine": {},
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline.py"
+  },
   "enabledPlugins": {}
 }
