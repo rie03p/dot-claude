@@ -1,0 +1,37 @@
+# macOS
+.DS_Store
+
+# Editor temp files
+*.swp
+*.swo
+*~
+
+# Claude Code internal metadata
+.claude/
+
+# Auth / credentials
+mcp-needs-auth-cache.json
+
+# History / stats
+history.jsonl
+stats-cache.json
+
+# Runtime / ephemeral data
+backups/
+cache/
+debug/
+downloads/
+file-history/
+paste-cache/
+plans/
+session-env/
+sessions/
+shell-snapshots/
+statsig/
+tasks/
+telemetry/
+todos/
+usage-data/
+
+# User-specific project memory (may contain sensitive info)
+projects/
